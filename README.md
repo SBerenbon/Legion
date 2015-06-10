@@ -1,0 +1,2 @@
+# Legion
+IRC bot.
