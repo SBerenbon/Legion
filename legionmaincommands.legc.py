@@ -2,13 +2,13 @@ class URLChecker(Command):
 	def __init__(self):
 		Command.__init__(self, [" "], 1)
 	def check(self, network, data):
-		if data.find("PRIVMSG ")!=-1 and "#astral_observatory" not in data and "#fluffington" not in data.lower() and nickanick(data) and nickanick(data).lower()!="dragobot" and nickanick(data)!="esting12345" and nickanick(data).lower()!="bitrelaybot":
+		if data.find("PRIVMSG ")!=-1 and nickanick(data):
 			#data.find("PRIVMSG #")!=-1 or data.find("PRIVMSG "+legionconfig[network][0])!=-1:
 			checktheurlplease=0
 			if nickachan(data):
 	
 				if nickachan(data) in legionconfig[network][7]:
-					if nickachan(data) in legionconfig[network][7] and not "bot" in legionconfig[network][7][nickachan(data)] and not "aigis" in legionconfig[network][7][nickachan(data)] and not "Bot" in legionconfig[network][7][nickachan(data)] and not "Aigis" in legionconfig[network][7][nickachan(data)] and not "Misaka" in legionconfig[network][7][nickachan(data)] and not "misaka" in legionconfig[network][7][nickachan(data)] or nickachan(data)=="":
+					if nickachan(data) in legionconfig[network][7]:
 						checktheurlplease=1
 					else:
 						checktheurlplease=0
@@ -826,7 +826,7 @@ class Weather(Command):
 	def __init__(self):
 		Command.__init__(self, ["weather "])
 	def action(self, network, recipient, data):
-		if nickachan(data) in legionconfig[network][7] and not "bot" in legionconfig[network][7][nickachan(data)] and not "aigis" in legionconfig[network][7][nickachan(data)] and not "Bot" in legionconfig[network][7][nickachan(data)] and not "Aigis" in legionconfig[network][7][nickachan(data)] and not "Misaka" in legionconfig[network][7][nickachan(data)] and not "misaka" in legionconfig[network][7][nickachan(data)] or nickachan(data)=="":
+		if nickachan(data) in legionconfig[network][7] or nickachan(data)=="":# and not "bot" in legionconfig[network][7][nickachan(data)] and not "aigis" in legionconfig[network][7][nickachan(data)] and not "Bot" in legionconfig[network][7][nickachan(data)] and not "Aigis" in legionconfig[network][7][nickachan(data)] and not "Misaka" in legionconfig[network][7][nickachan(data)] and not "misaka" in legionconfig[network][7][nickachan(data)]:
 			searchforme=data.lower().split("!weather ")[1].rstrip()
 			later=getweather(searchforme)
 	#!weather detroit, mi
