@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#Legion could add numbers to its name if its usual is occupied
-#or you could give it some alternate names
+#Pokemon is the intellectual property of The Pokemon Company.
 
 import tarotmodule
 import runesmodule
