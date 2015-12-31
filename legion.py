@@ -25,7 +25,7 @@ import copy
 #cj = cookielib.CookieJar()
 opener = urllib.request.build_opener()#urllib2.HTTPCookieProcessor(cj))
 #opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
+opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:39.0) Gecko/20100101 Firefox/39.0')]
 #Host: show-ip.net
 #User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 Firefox/5.0
 #Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
@@ -279,6 +279,11 @@ while True:
 				#except:
 				#	userliststorage+=data.split(":")[1]
 #				print("We're gonna talk to you all at a glance of the eye")
+			if " 353 " in data and not channellookingoutfor:
+				#try:
+				#	userliststorage+=data.split(":")[2]
+				channellookingoutfor=data.split(" 353 "+legionconfig[network][0]+" = ")[1].split(" ")[0].rstrip()
+				userliststorage+=data.split(":")[-1]
 			if channellookingoutfor and " 333 " not in data and " 353 " not in data and " 366 " not in data and " 332 " not in data and "End of /NAMES list." not in data and len(userliststorage):
 				userliststorage+=data.rstrip()
 			if " 366 " in data and channellookingoutfor:
@@ -390,9 +395,11 @@ while True:
 					sendastringtowho(("Reloading command modules."), data, network)
 					oldcommandnames=[]
 					oldcommands=copy.deepcopy(commands)
-					for o in oldcommands:
+					for o in range(0, len(oldcommands)):
 						#oldcommandnames.append(o.__class__.__name__)
-						oldcommandnames.append(o.__class__.__name__)
+						oldcommands[o].replaceable()
+						oldcommandnames.append(oldcommands[o].__class__.__name__)
+					firstnewestcommand=len(Command.__subclasses__())
 					for i in glob.glob("*.legc.py"):
 						
 						with open(i) as f:
@@ -401,27 +408,37 @@ while True:
 						f.close()
 					#global commands
 					thecommands=[]
-					for command in Command.__subclasses__():
-						#check against names in use
-						#they should be basically the same
-						#erk, how will I know the newest subclass will be loaded?
-						#I'm banking that it's a list and not a dict, so it will be in the order I loaded them
-						#it appears to be in order, first complaint was Calc
-						if command.__name__ in oldcommandnames:
-							#print(command.__name__, "is already in oldcommands")
-							#get the index number
-							theindex=oldcommandnames.index(command.__name__)
-							oldcommands[theindex]=command()
+					if len(Command.__subclasses__())>firstnewestcommand:
+						for command in Command.__subclasses__()[firstnewestcommand:]:
+							#check against names in use
+							#they should be basically the same
+							#erk, how will I know the newest subclass will be loaded?
+							#I'm banking that it's a list and not a dict, so it will be in the order I loaded them
+							#it appears to be in order, first complaint was Calc
 							
-							#1, 3, 6
-							#old
-							#old new old
-							#old new new old new old
-						else:
-							#print(command.__name__, "is brand new")
-							thecommands.append(command())
-					#global commands
-					commands=oldcommands+thecommands
+							#how can I make this fetch all instances of its subclasses?
+							#if there isn't already an instance of it
+							#Can I just delete all the old commands?
+							
+							#favor the uninitialized
+							#or...or! save the position of where the first of the newest command is in Command.__subclasses__()
+							
+							if command.__name__ in oldcommandnames:
+								print(command.__name__, "is already in oldcommands")
+								#get the index number
+								theindex=oldcommandnames.index(command.__name__)
+								oldcommands[theindex]=None
+								oldcommands[theindex]=command()
+								
+								#1, 3, 6
+								#old
+								#old new old
+								#old new new old new old
+							else:
+								#print(command.__name__, "is brand new")
+								thecommands.append(command())
+						#global commands
+						commands=oldcommands+thecommands
 					
 				else:
 					sendastringtowho(("You are not my master, "+cleanuser+". I refuse to obey your wishes."), data, network)

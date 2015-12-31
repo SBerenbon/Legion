@@ -579,8 +579,8 @@ class Command:
 					else:
 						self.action(network, chan, data)
 			#return 0
-		def action(self, network, recipient, data):
-			pass
+	def action(self, network, recipient, data):
+		pass
 
 
 
