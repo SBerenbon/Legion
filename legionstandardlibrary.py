@@ -1,4 +1,5 @@
 #from legion import legionconfig
+scriptfinder = re.compile(r'<script[\s\S]+?/script>')
 
 def bytesgoutf8(strung):
 	return bytes(strung, "UTF-8")
@@ -218,6 +219,8 @@ def gettropeexample():
 		cutting=""
 		while not htmlette:
 			htmlette=getatrope()
+		for i in re.findall(scriptfinder,htmlette):
+			htmlette=htmlette.replace(i, "")
 		htmlette=htmlette.split("\n")
 
 		for i in range(0,len(htmlette)):
