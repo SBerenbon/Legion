@@ -1,6 +1,24 @@
 #from legion import legionconfig
 scriptfinder = re.compile(r'<script[\s\S]+?/script>')
 
+def getdata(network):
+	data=""
+	data = legionconfig[network][5].recv ( 4096 )
+	try:
+		data=data.decode("utf-8")
+	except:
+		try:
+			data=data.decode("latin-1")
+		except:
+			try:
+				data=str(data)
+			except:
+				print_exc()
+	data=data.strip("\r\n")
+	data=data.strip("\n")
+	data=data.strip()
+	return data
+
 def bytesgoutf8(strung):
 	return bytes(strung, "UTF-8")
 
@@ -105,16 +123,24 @@ def nickanick(string):
 		return ""
 		
 
+<<<<<<< HEAD
 def nickachan(string):
-
-#:Spiffy!sarah@the.byte.is.life PRIVMSG #bulbagarden :https://www.youtube.com/watch?v=OyaePcQqrrQ
 	if " #" in string and " :" in string:
 		try:
-			return "#"+string.split(":")[1].split( " #")[1].split(" :")[0].rstrip()
+			return "#"+string.split(" PRIVMSG")[1].split( " #")[1].split(" :")[0].strip()
+<<<<<<< HEAD
+=======
+=======
+	if " #" in string and " :" in string:
+		try:
+			return "#"+string.split(":")[1].split( " #")[1].split(" :")[0].strip()
+>>>>>>> 5edf3822feeb55996b6022058d90c8b58ca58781
+>>>>>>> 0df60148fa541a25d832bb4e9d26f0446c445007
 		except:
 			return ""
 	else:
 		return ""
+
 
 
 def astringweknow(string, recipient, network):
@@ -132,6 +158,9 @@ def sendastringtowho(string, data, network):
 		cleanuser=nickanick(cleanuser)
 		legionconfig[network][5].send(bytesgoutf8("PRIVMSG "+cleanuser+" :"+string+"\r\n"))
 		#send to user
+
+def sendastringtotheop(network, string):
+	legionconfig[network][5].send(bytesgoutf8("PRIVMSG "+legionconfig[network][1]+" :"+string+"\r\n"))
 
 def pmsomebigline(line, data, network):
 	if len(line)>400:
@@ -219,53 +248,17 @@ def gettropeexample():
 		cutting=""
 		while not htmlette:
 			htmlette=getatrope()
+		title=htmlette.split("</title>")[0].split(">")[-1].split(" - TV Tropes")[0]
+		htmlette=htmlette.split("<div id=\"proper-ad-tvtropes_content_2\">")[1].split("<div id=\"proper-ad-tvtropes_content_1\">")[0]
+		if "<div class=\"alt-titles section section-fact\">" in htmlette:
+			htmlette=htmlette.split("<div class=\"alt-titles section section-fact\">")[0]
 		for i in re.findall(scriptfinder,htmlette):
 			htmlette=htmlette.replace(i, "")
-		htmlette=htmlette.split("\n")
-
-		for i in range(0,len(htmlette)):
-			if "folderlabel" in htmlette[i] or "asscaps" in htmlette[i] or "\"indent\"" in htmlette[i] or "'indent'" in htmlette[i]:
-				listtodel.append(i)
-			elif htmlette[i].count("</a>")==1 and "</li><li> <a class=\"twikilink\">" in htmlette[i] or htmlette[i].count("</a>")==1 and "</li><li> <a class='twikilink'>" in htmlette[i]:
-				listtodel.append(i)
-
-		for i in reversed(listtodel):
-			del htmlette[i]
-		
-		for i in range(0,len(htmlette)):
-			if "<h2>" in htmlette[i] or "Examples" in htmlette[i] and "</strong>" in htmlette[i]:
-				cutting=htmlette[i]
-				cutonme=i
-				break
-		
-		cutonmenow=cutonme-1
-		titlesection=htmlette[0:cutonmenow]
-		htmlette=htmlette[cutonme:]
-		
-		for i in titlesection:
-			newtitlesection+=(i+"\n")
-		
-		for i in htmlette:
-			if not "setAllFolders('');" in i:
-				newihtmlette+=(i+"\n")
-			else:
-				break
 		try:
-			newihtmlette=newihtmlette.split(cutting)[1]
 			for i in newihtmlette:
 				newhtmlette+=(i)
 			
-			htmler = lxml.html.fromstring(newhtmlette)
-			titlehtml = lxml.html.fromstring(newtitlesection)
-			#titlehtml=titlehtml.text_content().encode("utf-8").lstrip()
-			titlehtml=titlehtml.text_content().strip()#.decode("latin-1").lstrip()
-			#htmler=htmler.text_content().encode("utf-8")
-			htmler=htmler.text_content()#.decode("latin-1")
-			try:
-				title=titlehtml.split(" - TV Tropes")[0]
-			except:
-				title=titlehtml.split(" - TV Tropes")[0]
-					
+			htmler = lxml.html.fromstring(htmlette).text_content().strip()
 			examples=[]
 			examples=htmler.split("\n")[:-1]
 			try:
@@ -276,7 +269,7 @@ def gettropeexample():
 			for i in range(0,len(examples)):
 				try:
 					if examples[i][0]==" ":
-						examples[i]=examples[i].lstrip()
+						examples[i]=examples[i].strip()
 				except:
 					pass
 			nowant=[]
@@ -385,21 +378,6 @@ def notaselfcase(i, data):
 
 def getweather(searchforme):
 	searchforme=searchforme.replace(". ", ", ").replace("St, ", "St. ").replace("st, ", "st. ").replace("ST, ", "ST. ")
-	#<Legion>	Current conditions for Detroit, MI: Sunny, 85°F (29°C) Humidity: 72% Wind: SW at 10 mph
-	#<Legion>	Thu: Sunny, 99°F/74°F - Fri: Partly Cloudy, 91°F/75°F - Sat: Scattered Thunderstorms, 91°F/73°F - Sun: Scattered Thunderstorms, 87°F/73°F
-
-	#<Spiffy> !weather detroit, mi
-	#<Legion> Current conditions for Detroit, Michigan: Heavy Snow, 23°F (-5°C) Humidity: 24% Wind: ENE at 20 mph
-	#<Legion> Sat: Partly Cloudy, 23°F/1°F (-5°C/-17°C) - Sun: Snow, 21°F/9°F (-6°C/-12°C) - Mon: Mostly Cloudy, 10°F/-6°F (-12°C/-21°C) - Tue: Partly Cloudy, 5°F/-4°F (-15°C/-20°C) - Wed: Partly Cloudy, 9°F/4°F (-12°C/-15°C)
-	#<Spiffy> !weather hell, mi
-	#<Legion> Current conditions for Hell, Michigan: Light Snow, 22°F (-5°C) Humidity: 23% Wind: NW at 18 mph
-	#<Legion> Sat: Mostly Cloudy, 27°F/-7°F (-2°C/-21°C) - Sun: Snow, 20°F/6°F (-6°C/-14°C) - Mon: Mostly Cloudy, 8°F/-10°F (-13°C/-23°C) - Tue: Mostly Cloudy, 9°F/-7°F (-12°C/-21°C) - Wed: Partly Cloudy, 13°F/2°F (-10°C/-16°C)
-
-#<Legion> Current conditions for Detroit, Michigan: Snow, 23°F/1°F (-5°C/-17°C) Humidity: 77% Wind: WNW at 19 mph/30 kph
-#<Legion> Sat: Snow, 23°F/1°F (-5°C/-17°C) - Sun: Chance of Snow, 19°F/9°F (-7°C/-13°C) - Mon: Mostly Cloudy, 14°F/-9°F (-10°C/-23°C) - Tue: Fog, 3°F/-9°F (-16°C/-23°C)
-
-#<Misaka> Current conditions for Detroit, MI: Overcast (24.7°F/-4.1°C). Feels like 14°F/-10°C. Humidity: 81%. Wind: From the WNW at 12.0 MPH Gusting to 13.0 MPH (19.3kph).
-#<Misaka> Saturday: Snow. High of 23°F/-5°C. Low of 1°F/-17°C. Sunday: Chance of Snow. High of 19°F/-7°C. Low of 9°F/-13°C. 
 
 	whatisthisplace=""
 	url="http://autocomplete.wunderground.com/aq?query="+urllib.parse.quote(searchforme)
@@ -543,6 +521,7 @@ class Command:
 		#self.command=command
 		self.triggerlist=triggerlist
 		self.noargs=noargs
+		self.overwriteme=0
 		#2 should be for args or noargs
 	def check(self, network, data):
 		data=data.strip()
@@ -685,8 +664,6 @@ def nickanick(string):
 		
 
 def nickachan(string):
-
-#:Spiffy!sarah@the.byte.is.life PRIVMSG #bulbagarden :https://www.youtube.com/watch?v=OyaePcQqrrQ
 	if " #" in string and " :" in string:
 		try:
 			return "#"+string.split(":")[1].split( " #")[1].split(" :")[0].rstrip()
